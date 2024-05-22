@@ -6,17 +6,20 @@ console.log(__dirname);
 let http = require("http");
 let express = require("express");
 const bodyParser = require("body-parser");
+let connectDB = require("./db/dbConnect");
 
 let app = express();
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
+app.set("view engine", "ejs");
 // app.listen(3001, () => {
 //   console.log("server started");
 // });
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+  res.render("index");
 });
 
 app.get("/getuser", (req, res) => {
@@ -41,15 +44,10 @@ app.post("/create-user", (req, res) => {
   try {
     console.log(req.body);
 
-    let body = req.body;
+    let { name } = req.body;
+    console.log(name);
 
-    if (body.firstname == "" || body.lastname == "") {
-      throw new Error("please fill the data");
-    }
-    res.status(201).json({
-      message: "user created successfully",
-      user: body,
-    });
+    res.render("index", { name });
   } catch (err) {
     res.status(500).json({
       message: err.message,
@@ -57,6 +55,10 @@ app.post("/create-user", (req, res) => {
   }
 });
 
+//db connection
+connectDB();
+
+//https server
 http.createServer(app).listen(3001, () => {
   console.log("server started");
 });
